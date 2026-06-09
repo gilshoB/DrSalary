@@ -298,18 +298,18 @@ function render(){
       : `${fmt(gap)} ₪/חודש · ${fmt(gap*12)} ₪/שנה`;
     const gapCls = gap===0?'zero':'neg';
     const barPct = 30 + 70*((r.v-minV)/Math.max(maxV-minV,1));
-    // Big number = net salary (before car). For company car, net already includes the car.
-    const bigNum = r.carCost>0 ? r.net : r.v;
-    const afterCar = r.carCost>0
-      ? `אחרי רכב (${fmt(r.carCost)} ₪): <b>${fmt(r.v)} ₪</b>`
-      : `הרכב מגולם — זה גם הפנוי`;
-    const bigCap = r.carCost>0 ? 'נטו לפני רכב' : 'נטו (רכב כלול)';
+    // Big number = disposable after car (the true comparison). Small note = net before car.
+    const bigNum = r.v;
+    const note = r.carCost>0
+      ? `נטו לפני רכב: <b>${fmt(r.net)} ₪</b> · רכב ${fmt(r.carCost)} ₪`
+      : `הרכב מגולם בשכר — אין הוצאה נוספת`;
+    const bigCap = 'נטו פנוי לחודש';
     return `<div class="opt ${i===0?'win':''}">
       <div class="medal">${medals[i]}</div>
       <div class="body">
         <div class="name">${r.name}</div>
         <div class="desc">${r.desc}</div>
-        <div class="net">${afterCar}</div>
+        <div class="net">${note}</div>
         <div class="bar-wrap"><div class="bar" style="width:${barPct}%"></div></div>
       </div>
       <div class="figs">
