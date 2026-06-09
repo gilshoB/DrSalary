@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>השוואת רכב — חברה / קנייה / עוסק</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Rubik:wght@400;500;600&display=swap');
+
+  :root{
+    --ink:#10231c;
+    --paper:#f3efe6;
+    --card:#fbf9f4;
+    --line:#d9d2c2;
+    --gold:#c08a2d;
+    --green:#1f6f4f;
+    --green-soft:#e3efe7;
+    --red:#9c3b32;
+    --muted:#6d6457;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Heebo',sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.55;
+    padding:18px 14px 60px;
+    max-width:760px;
+    margin:0 auto;
+  }
+  .eyebrow{
+    font-family:'Rubik',sans-serif;
+    font-size:.72rem;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin-bottom:6px;
+  }
+  h1{
+    font-size:1.7rem;
+    font-weight:900;
+    letter-spacing:-.01em;
+    margin-bottom:4px;
+  }
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:22px}
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:18px 16px;
+    margin-bottom:16px;
+  }
+  .panel h2{
+    font-size:.95rem;
+    font-weight:700;
+    margin-bottom:14px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .panel h2 .dot{width:9px;height:9px;border-radius:50%;background:var(--gold)}
+
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .field label{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-size:.86rem;font-weight:500;margin-bottom:6px;
+  }
+  .field label .val{
+    font-family:'Rubik',sans-serif;
+    font-weight:600;font-size:1rem;color:var(--green);
+  }
+  .field .hint{font-size:.72rem;color:var(--muted);font-weight:400}
+  input[type=range]{
+    width:100%;height:5px;border-radius:5px;
+    background:var(--line);outline:none;-webkit-appearance:none;appearance:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;appearance:none;
+    width:22px;height:22px;border-radius:50%;
+    background:var(--green);cursor:pointer;border:3px solid var(--card);
+    box-shadow:0 1px 4px rgba(0,0,0,.25);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--green);cursor:pointer;border:3px solid var(--card);
+  }
+  .numrow{display:flex;align-items:center;gap:8px;margin-top:8px}
+  .numrow input[type=number]{
+    width:120px;padding:7px 9px;border:1px solid var(--line);
+    border-radius:8px;font-family:'Rubik',sans-serif;font-size:.95rem;
+    text-align:right;background:#fff;
+  }
+  .numrow span{font-size:.8rem;color:var(--muted)}
+
+  /* results */
+  .podium{display:flex;flex-direction:column;gap:10px;margin-top:4px}
+  .opt{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px 15px;
+    background:var(--card);
+    display:flex;align-items:center;gap:14px;
+    position:relative;overflow:hidden;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .opt.win{border-color:var(--green);background:var(--green-soft);box-shadow:0 4px 18px rgba(31,111,79,.12)}
+  .opt .rank{
+    font-family:'Rubik',sans-serif;font-weight:600;
+    font-size:1.5rem;width:34px;text-align:center;color:var(--muted);
+  }
+  .opt.win .rank{color:var(--green)}
+  .opt .medal{font-size:1.4rem;width:34px;text-align:center}
+  .opt .body{flex:1;min-width:0}
+  .opt .name{font-weight:700;font-size:.96rem}
+  .opt .desc{font-size:.74rem;color:var(--muted);margin-top:1px}
+  .opt .net{font-size:.76rem;color:var(--muted);margin-top:5px}
+  .opt .net b{color:var(--ink);font-family:'Rubik',sans-serif;font-weight:600}
+  .opt .figs{text-align:left;flex-shrink:0}
+  .opt .figs .cap{font-size:.66rem;color:var(--muted);margin-bottom:1px}
+  .opt .big{font-family:'Rubik',sans-serif;font-weight:600;font-size:1.18rem}
+  .opt .gap{font-size:.74rem;margin-top:1px}
+  .opt .gap.zero{color:var(--green);font-weight:600}
+  .opt .gap.neg{color:var(--red)}
+
+  .bar-wrap{margin-top:9px;height:6px;background:var(--line);border-radius:6px;overflow:hidden}
+  .bar{height:100%;background:var(--green);border-radius:6px;transition:width .35s ease}
+  .opt:not(.win) .bar{background:#b9a86f}
+
+  details{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  summary{font-size:.82rem;font-weight:600;color:var(--green);cursor:pointer}
+  .break{font-size:.82rem;color:var(--muted);margin-top:10px;line-height:1.7}
+  .break b{color:var(--ink)}
+
+  .foot{font-size:.72rem;color:var(--muted);margin-top:18px;text-align:center;line-height:1.6}
+  .seg{display:flex;gap:6px;margin-top:8px}
+  .seg button{
+    flex:1;padding:8px 4px;border:1px solid var(--line);background:#fff;
+    border-radius:8px;font-family:'Heebo';font-size:.8rem;font-weight:500;
+    cursor:pointer;color:var(--muted);transition:all .15s;
+  }
+  .seg button.on{background:var(--green);color:#fff;border-color:var(--green)}
+</style>
+</head>
+<body>
+  <div class="eyebrow">השוואה כלכלית · 70% משרה + עוסק מורשה</div>
+  <h1>איזו אופציית רכב משתלמת לך?</h1>
+  <p class="sub">שלוש דרכים להחזיק את אותו רכב — שחקי עם המספרים וראי מי מנצח.</p>
+
+  <!-- ADJUSTABLE INPUTS -->
+  <div class="panel">
+    <h2><span class="dot"></span>שלושת המשתנים שלך</h2>
+
+    <div class="field">
+      <label>
+        <span>זקיפת שווי רכב חברה <span class="hint">(מהתלוש)</span></span>
+        <span class="val" id="zkLabel">4,500 ₪</span>
+      </label>
+      <input type="range" id="zk" min="0" max="8000" step="50" value="4500">
+      <div class="numrow">
+        <input type="number" id="zkNum" value="4500"><span>₪ לחודש · זקיפה לברוטו</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>
+        <span>עלות ליסינג עוסק <span class="hint">(העלות החודשית שחישבת)</span></span>
+        <span class="val" id="leaseLabel">3,177 ₪</span>
+      </label>
+      <input type="range" id="lease" min="1500" max="6000" step="25" value="3177">
+      <div class="numrow">
+        <input type="number" id="leaseNum" value="3177"><span>₪ לחודש · תשלום ליסינג</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>
+        <span>עלות קנייה (יד שנייה) <span class="hint">עלות חודשית כוללת</span></span>
+        <span class="val" id="buyLabel">2,506 ₪</span>
+      </label>
+      <input type="range" id="buy" min="1000" max="6000" step="25" value="2506">
+      <div class="numrow">
+        <input type="number" id="buyNum" value="2506"><span>₪ לחודש · הכל כלול</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="panel">
+    <h2><span class="dot"></span>הדירוג שלך</h2>
+    <div class="podium" id="podium"></div>
+
+    <details>
+      <summary>הנחות הקבע (מהתלוש) ונקודות שבירה</summary>
+      <div class="break" id="breaks"></div>
+    </details>
+  </div>
+
+  <!-- FIXED ASSUMPTIONS -->
+  <div class="panel">
+    <h2><span class="dot"></span>נתוני בסיס — ניתן לכוונן</h2>
+    <div class="field">
+      <label><span>רווח עוסק מורשה</span><span class="val" id="osekLabel">43,000 ₪</span></label>
+      <input type="range" id="osek" min="0" max="80000" step="500" value="43000">
+    </div>
+    <div class="field">
+      <label><span>נקודות זיכוי</span><span class="val" id="ptsLabel">10.5</span></label>
+      <input type="range" id="pts" min="0" max="15" step="0.25" value="10.5">
+    </div>
+    <div class="field" style="margin-bottom:6px">
+      <label><span>סוג הנעה לרכב החברה</span><span class="hint">משפיע על הזקיפה</span></label>
+      <div class="seg" id="drive">
+        <button data-d="0" class="on">בנזין/דיזל</button>
+        <button data-d="1130">פלאג-אין</button>
+        <button data-d="1350">חשמלי</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="foot">
+    החישוב כולל מס הכנסה מדורג (2025), ביטוח לאומי ובריאות, ואיחוד הכנסת השכיר והעוסק לתיק מס אחד.<br>
+    אומדן בלבד — אינו תחליף לייעוץ רואה חשבון. זקיפת רכב חשמלי/פלאג-אין מפחיתה מהזקיפה הקבועה בחוק.
+  </p>
+
+<script>
+// ---- Israeli tax engine (annual brackets 2025) ----
+const BR=[[84120,.10],[120720,.14],[193800,.20],[269280,.31],[560280,.35],[721560,.47],[Infinity,.50]];
+const CP=242*12;
+function taxYr(t,pts){let x=0,p=0;for(const[top,r]of BR){if(t>p){x+=(Math.min(t,top)-p)*r;p=top;}else break;}return Math.max(0,x-pts*CP);}
+function blEmp(m){const lc=7522;const x=m<=lc?m*.066:lc*.066+(m-lc)*.12;return x*12;}
+function blSelf(m){const lc=7522,c=49030,g=Math.min(m,c);const x=g<=lc?g*.0597:lc*.0597+(g-lc)*.1783;return x*12;}
+
+// Fixed salary structure from payslips (Maccabi 70%, monthly taxable brutto)
+const TAXABLE_NOCAR=28079;   // without company car
+const CASH_NOCAR=28079;      // all cash
+const HESDER=1200;           // employee contribution for company car (from payslip)
+const BASE_CASH_WITHCAR=27224; // 31724 taxable - 4500 default zkifa = cash portion
+
+function netMo(cashGross, taxableGross, osek, pts){
+  const taxable=(taxableGross+osek)*12;
+  const t=taxYr(taxable,pts);
+  const bl=blEmp(taxableGross)+blSelf(osek);
+  return ((cashGross+osek)*12 - t - bl)/12;
+}
+
+const els={
+  zk:zk, zkNum:zkNum, zkLabel:zkLabel,
+  lease:lease, leaseNum:leaseNum, leaseLabel:leaseLabel,
+  buy:buy, buyNum:buyNum, buyLabel:buyLabel,
+  osek:osek, osekLabel:osekLabel,
+  pts:pts, ptsLabel:ptsLabel,
+};
+let driveDisc=0;
+
+function fmt(n){return Math.round(n).toLocaleString('en-US');}
+
+function compute(){
+  const zkBase=+els.zk.value;
+  const zk=Math.max(0, zkBase - driveDisc);
+  const lease=+els.lease.value;
+  const buy=+els.buy.value;
+  const osek=+els.osek.value;
+  const pts=+els.pts.value;
+
+  // OPT1 Company car: cash gross = base cash with car (no zkifa cash) minus hesder; taxable includes zkifa
+  const cashWithCar = BASE_CASH_WITHCAR - HESDER;
+  const taxableWithCar = TAXABLE_NOCAR + zk; // base taxable + zkifa benefit
+  const o1net = netMo(cashWithCar, taxableWithCar, osek, pts); // net in hand, fuel covered
+  const o1 = o1net; // no extra out-of-pocket car cost
+
+  // OPT2 Buy used: no car salary structure, pay buy cost from pocket
+  const o2net = netMo(CASH_NOCAR, TAXABLE_NOCAR, osek, pts);
+  const o2 = o2net - buy;
+
+  // OPT3 Osek lease: no car salary; lease cost entered is the final monthly cost (as-is, no hidden VAT adjustment)
+  const o3net = netMo(CASH_NOCAR, TAXABLE_NOCAR, osek, pts);
+  const o3 = o3net - lease;
+
+  return [
+    {key:'buy', name:'קנייה — יד שנייה', desc:'רכב בן שנתיים, שלך לגמרי', net:o2net, carCost:buy, v:o2},
+    {key:'osek', name:'ליסינג תפעולי — עוסק', desc:'רכב חדש, דרך העוסק המורשה', net:o3net, carCost:lease, v:o3},
+    {key:'co', name:'ליסינג — רכב חברה', desc:'זקיפת שווי + השתתפות עובד', net:o1net, carCost:0, v:o1},
+  ];
+}
+
+function render(){
+  const rows=compute().sort((a,b)=>b.v-a.v);
+  const best=rows[0].v;
+  const worst=rows[rows.length-1].v;
+  const span=Math.max(best-worst,1);
+  const medals=['🥇','🥈','🥉'];
+  const minV=Math.min(...rows.map(r=>r.v));
+  const maxV=Math.max(...rows.map(r=>r.v));
+
+  podium.innerHTML=rows.map((r,i)=>{
+    const gap=r.v-best;
+    const gapTxt = gap===0 ? 'המשתלמת ביותר'
+      : `${fmt(gap)} ₪/חודש · ${fmt(gap*12)} ₪/שנה`;
+    const gapCls = gap===0?'zero':'neg';
+    const barPct = 30 + 70*((r.v-minV)/Math.max(maxV-minV,1));
+    // Big number = net salary (before car). For company car, net already includes the car.
+    const bigNum = r.carCost>0 ? r.net : r.v;
+    const afterCar = r.carCost>0
+      ? `אחרי רכב (${fmt(r.carCost)} ₪): <b>${fmt(r.v)} ₪</b>`
+      : `הרכב מגולם — זה גם הפנוי`;
+    const bigCap = r.carCost>0 ? 'נטו לפני רכב' : 'נטו (רכב כלול)';
+    return `<div class="opt ${i===0?'win':''}">
+      <div class="medal">${medals[i]}</div>
+      <div class="body">
+        <div class="name">${r.name}</div>
+        <div class="desc">${r.desc}</div>
+        <div class="net">${afterCar}</div>
+        <div class="bar-wrap"><div class="bar" style="width:${barPct}%"></div></div>
+      </div>
+      <div class="figs">
+        <div class="cap">${bigCap}</div>
+        <div class="big">${fmt(bigNum)} ₪</div>
+        <div class="gap ${gapCls}">${gapTxt}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // breakeven notes
+  const osek=+els.osek.value, pts=+els.pts.value;
+  const buy=+els.buy.value, lease=+els.lease.value;
+  const o2=netMo(CASH_NOCAR,TAXABLE_NOCAR,osek,pts)-buy;
+  const o3=netMo(CASH_NOCAR,TAXABLE_NOCAR,osek,pts)-lease;
+  // find zkifa where company car ties buy & osek
+  function coNet(zk){return netMo(BASE_CASH_WITHCAR-HESDER, TAXABLE_NOCAR+Math.max(0,zk-driveDisc), osek, pts);}
+  let beBuy=null, beOsek=null;
+  for(let z=0;z<9000;z+=25){ if(coNet(z)<=o2){beBuy=z;break;} }
+  for(let z=0;z<9000;z+=25){ if(coNet(z)<=o3){beOsek=z;break;} }
+  breaks.innerHTML=`
+    <b>נתוני קבע מהתלוש:</b> ברוטו 70% = 28,079 ₪ (ללא רכב) · השתתפות עובד ברכב חברה = 1,200 ₪/חודש · הדלק ברכב חברה מכוסה.<br><br>
+    <b>נקודת שבירה — מול קנייה:</b> רכב החברה משתלם רק אם הזקיפה (אחרי הפחתת הנעה) יורדת מתחת ל-${beBuy?fmt(beBuy):'—'} ₪/חודש.<br>
+    <b>נקודת שבירה — מול ליסינג עוסק:</b> רכב החברה עוקף את העוסק אם הזקיפה מתחת ל-${beOsek?fmt(beOsek):'—'} ₪/חודש.
+  `;
+}
+
+// sync slider <-> number
+function bind(slider,num,label,suffix='₪'){
+  function upd(src){
+    if(src==='s') num.value=slider.value;
+    else slider.value=num.value;
+    label.textContent=(+slider.value).toLocaleString('en-US')+' '+suffix;
+    render();
+  }
+  slider.addEventListener('input',()=>upd('s'));
+  num.addEventListener('input',()=>upd('n'));
+}
+bind(els.zk,els.zkNum,els.zkLabel);
+bind(els.lease,els.leaseNum,els.leaseLabel);
+bind(els.buy,els.buyNum,els.buyLabel);
+els.osek.addEventListener('input',()=>{els.osekLabel.textContent=(+els.osek.value).toLocaleString('en-US')+' ₪';render();});
+els.pts.addEventListener('input',()=>{els.ptsLabel.textContent=(+els.pts.value);render();});
+
+document.querySelectorAll('#drive button').forEach(b=>{
+  b.addEventListener('click',()=>{
+    document.querySelectorAll('#drive button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on');
+    driveDisc=+b.dataset.d;
+    render();
+  });
+});
+
+render();
+</script>
+</body>
+</html>
